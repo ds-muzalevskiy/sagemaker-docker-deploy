@@ -1,1 +1,1 @@
-# sagemaker-sklearn-deploy
+# sagemaker-docker-deploy
