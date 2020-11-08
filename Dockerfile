@@ -21,5 +21,5 @@ ENV PYTHONUNBUFFERED=TRUE
 ENV PYTHONDONTWRITEBYTECODE=TRUE
 ENV PATH="/opt/program:${PATH}"
 
-COPY decision_trees /opt/program
+COPY sagemaker-estimator /opt/program
 WORKDIR /opt/program
