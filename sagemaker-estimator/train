@@ -11,41 +11,39 @@ import traceback
 import pandas as pd
 
 from sklearn import tree
+from sklearn.model_selection import GridSearchCV
 
 prefix = '/opt/ml/'
 
 input_path = prefix + 'input/data'
 output_path = os.path.join(prefix, 'output')
 model_path = os.path.join(prefix, 'model')
-param_path = os.path.join(prefix, 'input/config/hyperparameters.json')
 
 channel_name='training'
 training_path = os.path.join(input_path, channel_name)
 
+params = {'min_samples_split':[2,4], 'min_samples_leaf':[1,2,3]}
+
 def train():
     print('Starting the training.')
-    try:
-        with open(param_path, 'rb') as tc:
-            trainingParams = json.load(tc)
+        
+    input_files = [ os.path.join(training_path, file) for file in os.listdir(training_path) ]
+    if len(input_files) == 0:
+        raise ValueError(('error').format(training_path, channel_name))
+    raw_data = [ pd.read_csv(file, header=None) for file in input_files ]
+    train_data = pd.concat(raw_data)
 
-        input_files = [ os.path.join(training_path, file) for file in os.listdir(training_path) ]
-        if len(input_files) == 0:
-            raise ValueError(('error').format(training_path, channel_name))
-        raw_data = [ pd.read_csv(file, header=None) for file in input_files ]
-        train_data = pd.concat(raw_data)
+    train_y = train_data.ix[:,0]
+    train_X = train_data.ix[:,1:]
 
-        train_y = train_data.ix[:,0]
-        train_X = train_data.ix[:,1:]
 
-        max_leaf_nodes = trainingParams.get('max_leaf_nodes', None)
-        if max_leaf_nodes is not None:
-            max_leaf_nodes = int(max_leaf_nodes)
+    clf = tree.DecisionTreeClassifier()
+        
+    grid = GridSearchCV(estimator=clf, param_grid=params, cv=5)
+    grid = grid.fit(train_X, train_y)
 
-        clf = tree.DecisionTreeClassifier(max_leaf_nodes=max_leaf_nodes)
-        clf = clf.fit(train_X, train_y)
-
-        with open(os.path.join(model_path, 'decision-tree-model.pkl'), 'wb') as out:
-            pickle.dump(clf, out)
+    with open(os.path.join(model_path, 'decision-tree-model.pkl'), 'wb') as out:
+        pickle.dump(grid, out)
         print('Training complete.')
     except Exception as e:
         trc = traceback.format_exc()
@@ -55,6 +53,6 @@ def train():
         sys.exit(255)
 
 if __name__ == '__main__':
-    train()
+    train(params)
 
     sys.exit(0)
