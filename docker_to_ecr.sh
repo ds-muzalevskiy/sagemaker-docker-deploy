@@ -8,8 +8,8 @@ then
     exit 1
 fi
 
-chmod +x decision_trees/train
-chmod +x decision_trees/serve
+chmod +x sagemaker-estimator/trainer
+chmod +x sagemaker-estimator/server
 
 account=$(aws sts get-caller-identity --query Account --output text)
 
