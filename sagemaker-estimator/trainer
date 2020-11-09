@@ -10,7 +10,12 @@ import traceback
 
 import pandas as pd
 
-from sklearn import tree
+#from sklearn import tree
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.ensemble import VotingClassifier
+from sklearn.ensemble import RandomForestClassifier
+
 from sklearn.model_selection import GridSearchCV
 
 prefix = '/opt/ml/'
@@ -23,10 +28,8 @@ channel_name='training'
 training_path = os.path.join(input_path, channel_name)
 
 
-
 def train():
-    print('Starting the training.')
-        
+    
     input_files = [ os.path.join(training_path, file) for file in os.listdir(training_path) ]
     if len(input_files) == 0:
         raise ValueError(('error').format(training_path, channel_name))
@@ -36,11 +39,26 @@ def train():
     train_y = train_data.iloc[:,0]
     train_X = train_data.iloc[:,1:]
 
-    params = {'min_samples_split':[2,4], 'min_samples_leaf':[1,2,3]}
-    clf = tree.DecisionTreeClassifier()
+    #params = {'min_samples_split':[2,4], 'min_samples_leaf':[1,2,3]}
+    #clf = tree.DecisionTreeClassifier()
         
+    #grid = GridSearchCV(estimator=clf, param_grid=params, cv=3)
+    #grid = grid.fit(train_X, train_y)
+    
+    clf = VotingClassifier(estimators=[ 
+    ('svm', SVC(probability=True)), 
+    ('lr', LogisticRegression()), 
+    ('rf', RandomForestClassifier())], voting='soft')
+    
+    params = {'lr__C': [1.0, 2.0, 5.0],
+              'svm__C': [2,3,4],
+              'rf__min_samples_leaf': [1, 2, 4],
+              'rf__min_samples_split': [2,5,10],
+              'rf__n_estimators': [10, 20, 50, 100]}
+
     grid = GridSearchCV(estimator=clf, param_grid=params, cv=3)
-    grid = grid.fit(train_X, train_y)
+
+    grid.fit(train_X, train_y)
 
     with open(os.path.join(model_path, 'decision-tree-model.pkl'), 'wb') as out:
         pickle.dump(grid, out)
