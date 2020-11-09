@@ -37,7 +37,7 @@ Docker uses a simple file called a Dockerfile to specify how the image is assemb
 ## Execution stack for container
 
 <p align="center">
-<src=./imgs/stack.png>
+  <img width="385" height="280" src=./imgs/stack.png>
 </p>
 
 * /ping will receive GET requests from the infrastructure. Your program returns 200 if the container is up and accepting requests.
