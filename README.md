@@ -36,9 +36,9 @@ Docker uses a simple file called a Dockerfile to specify how the image is assemb
 
 ## Execution stack for container
 
-![Container Stack](<p align="center">
-  <img width="460" height="300" src=./imgs/stack.png>
-</p>)
+<p align="center">
+<src=./imgs/stack.png>
+</p>
 
 * /ping will receive GET requests from the infrastructure. Your program returns 200 if the container is up and accepting requests.
 * /invocations is the endpoint that receives client inference POST requests. The format of the request and the response is up to the algorithm. If the client supplied ContentType and Accept headers, these will be passed in as well.
