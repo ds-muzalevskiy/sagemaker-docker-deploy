@@ -36,7 +36,7 @@ Docker uses a simple file called a Dockerfile to specify how the image is assemb
 
 ## Execution stack for container
 
-<p align="center">
+<p> align="center">
 <src=./imgs/stack.png>
 </p>
 
