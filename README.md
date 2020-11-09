@@ -55,13 +55,13 @@ The server executes the web app and sends related information and a callback fun
 Sometimes there might be one or more WSGI middlewares between the server and the web app. Middleware is used to direct requests to various app objects, load balancing, content preprocessing and running several frameworks or apps alongside each other in the same process. Examples of Python frameworks that support WSGI include Django, CherryPy, Flask, TurboGears, and web2py.
 
 <p align="center">
-  <img width="385" height="280" src=./imgs/server-app.png>
+  <img width="1444" height="567" src=./imgs/server-app.png>
 </p>
 
 The main principle for using wsgi with flask app can be displayed on this pic:
 
 <p align="center">
-  <img width="385" height="280" src=./imgs/wsgi.png>
+  <img width="1222" height="481" src=./imgs/wsgi.png>
 </p>
 
 ## Main Components
