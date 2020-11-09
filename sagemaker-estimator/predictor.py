@@ -15,6 +15,7 @@ import pandas as pd
 prefix = '/opt/ml/'
 model_path = os.path.join(prefix, 'model')
 
+'''
 class ScoringService(object):
     model = None               
 
@@ -30,6 +31,17 @@ class ScoringService(object):
 
         clf = cls.get_model()
         return clf.predict(input)
+'''
+
+def get_model(cls):
+    if cls.model == None:
+        with open(os.path.join(model_path, 'decision-tree-model.pkl'), 'rb') as inp:
+            cls.model = pickle.load(inp)
+    return cls.model
+
+def predict(cls, input):
+    clf = cls.get_model()
+    return clf.predict(input)
 
 app = flask.Flask(__name__)
 
