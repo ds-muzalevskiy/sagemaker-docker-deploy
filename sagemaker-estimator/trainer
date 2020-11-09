@@ -60,7 +60,7 @@ def train():
 
     grid.fit(train_X, train_y)
 
-    with open(os.path.join(model_path, 'decision-tree-model.pkl'), 'wb') as out:
+    with open(os.path.join(model_path, 'ml-model.pkl'), 'wb') as out:
         pickle.dump(grid, out)
         print('Training complete.')
         
