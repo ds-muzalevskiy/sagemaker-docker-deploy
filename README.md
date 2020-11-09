@@ -20,7 +20,7 @@ In some ways, a Docker container is like a virtual machine, but it is much light
 
 Docker uses a simple file called a Dockerfile to specify how the image is assembled. We'll see an example of that below. You can build your Docker images based on Docker images built by yourself or others, which can simplify things quite a bit.
 
-
+![Docker Work](./imgs/docker.png)
 
 ## How does it differ from virtualization?
 
