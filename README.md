@@ -22,19 +22,19 @@ Docker uses a simple file called a Dockerfile to specify how the image is assemb
 
 ![Docker Work](./imgs/docker.png)
 
-## ML Docker structure for Sagemaker
+## ML Docker Structure for Sagemaker
 
 ![ML Docker](./imgs/structure.png)
 
-### The input
+### input
 * /opt/ml/input/config contains information to control how your program runs. hyperparameters.json is a JSON-formatted dictionary of hyperparameter names to values. These values will always be strings, so you may need to convert them. resourceConfig.json is a JSON-formatted file that describes the network layout used for distributed training. Since scikit-learn doesn't support distributed training, we'll ignore it here.
 * /opt/ml/input/data/<channel_name>/ (for File mode) contains the input data for that channel. The channels are created based on the call to CreateTrainingJob but it's generally important that channels match what the algorithm expects. The files for each channel will be copied from S3 to this directory, preserving the tree structure indicated by the S3 key structure.
 
-### The output
+### output
 * /opt/ml/model/ is the directory where you write the model that your algorithm generates. Your model can be in any format that you want. It can be a single file or a whole directory tree. SageMaker will package any files in this directory into a compressed tar archive file. This file will be available at the S3 location returned in the DescribeTrainingJob result.
 * /opt/ml/output is a directory where the algorithm can write a file failure that describes why the job failed. The contents of this file will be returned in the FailureReason field of the DescribeTrainingJob result. For jobs that succeed, there is no reason to write this file as it will be ignored.
 
-## Execution stack for container
+## Execution Stack for Container
 
 <p align="center">
   <img width="385" height="280" src=./imgs/stack.png>
@@ -43,47 +43,22 @@ Docker uses a simple file called a Dockerfile to specify how the image is assemb
 * /ping will receive GET requests from the infrastructure. Your program returns 200 if the container is up and accepting requests.
 * /invocations is the endpoint that receives client inference POST requests. The format of the request and the response is up to the algorithm. If the client supplied ContentType and Accept headers, these will be passed in as well.
 
-### Faster development process
+## Main Components
 
-There is no need to install 3rd-party apps like PostgreSQL, Redis, Elasticsearch on the system -- you can run it in containers. Docker also gives you the ability to run different versions of same application simultaneously. For example, say you need to do some manual data migration from an older version of Postgres to a newer version. You can have such a situation in microservice architecture when you want to create a new microservice with a new version of the 3rd-party software.
+* Dockerfile: The Dockerfile describes how the image is built and what it contains. It is a recipe for your container and gives you tremendous flexibility to construct almost any execution environment you can imagine. Here. we use the Dockerfile to describe a pretty standard python science stack and the simple scripts that we're going to add to it. See the Dockerfile reference for what's possible here.
 
-It could be quite complex to keep two different versions of the same app on one host OS. In this case, Docker containers could be a perfect solution –- you receive isolated environments for your applications and 3rd-parties.
+* docker_to_ecr.sh: The script to build the Docker image (using the Dockerfile above) and push it to the Amazon EC2 Container Registry (ECR) so that it can be deployed to SageMaker. Specify the name of the image as the argument to this script. The script will generate a full name for the repository in your account and your configured AWS region. If this ECR repository doesn't exist, the script will create it.
 
-### Handy application encapsulation
+* sagemaker-estimator: The directory that contains the application to run in the container. See the next session for details about each of the files.
 
-You can deliver your application in one piece. Most programming languages, frameworks and all operating systems have their own packaging managers. And even if your application can be packed with its native package manager, it could be hard to create a port for another system.
+## Container Application
 
-Docker gives you a unified image format to distribute you applications across different host systems and cloud services. You can deliver your application in one piece with all the required dependencies (included in an image) ready to run.
+* train: The main program for training the model. When you build your own algorithm, you'll edit this to include your training code.
+* serve: The wrapper that starts the inference server. In most cases, you can use this file as-is.
+* wsgi.py: The start up shell for the individual server workers. This only needs to be changed if you changed where predictor.py is located or is named.
+* predictor.py: The algorithm-specific inference server. This is the file that you modify with your own algorithm's code.
+* nginx.conf: The configuration for the nginx master server that manages the multiple workers.
 
-### Same behaviour on local machine / dev / staging / production servers
-
-Docker can't guarantee 100% dev / staging / production parity, because there is always the human factor. But it reduces to almost zero the probability of error caused by different versions of operating systems, system-dependencies, etc.
-
-With right approach to building Docker images, your application will use the same base image with the same OS version and the required dependencies.
-
-### Easy and clear monitoring
-
-Out of the box, you have a unified way to read log files from all running containers. You don't need to remember all the specific paths where your app and its dependencies store log files and write custom hooks to handle this.
-
-You can integrate an [external logging driver](https://docs.docker.com/config/containers/logging/configure/#supported-logging-drivers) and monitor your app log files in one place.
-
-### Easy to scale
-
-A correctly wrapped application will cover most of the [Twelve Factors](https://12factor.net/). By design, Docker forces you follow its core principles, such as configuration over environment variables, communication over TCP/UDP ports, etc. And if you've done your application right, it will be ready for scaling not only in Docker.
-
-## Supported platforms
-
-Docker's native platform is Linux, as it's based on features provided by the Linux kernel. However, you can still run it on macOS and Windows. The only difference is that on macOS and Windows, Docker is encapsulated into a tiny virtual machine. At the moment, Docker for macOS and Windows has reached a significant level of usability and feels more like a native app.
-
-## Installation
-
-You can check out the installation instructions for Docker [here](https://docs.docker.com/install/).
-
-If you're running Docker on Linux, you need to run all the following commands as root or add your user to docker group and re-login:
-
-```bash
-sudo usermod -aG docker $(whoami)
-```
 
 ## Terminology
 
