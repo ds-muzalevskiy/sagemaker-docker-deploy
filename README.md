@@ -22,25 +22,24 @@ Docker uses a simple file called a Dockerfile to specify how the image is assemb
 
 ![Docker Work](./imgs/docker.png)
 
-## How does it differ from virtualization?
+## ML Docker structure for Sagemaker
 
-Traditionally, virtual machines were used to avoid this unexpected behavior. The main problem with VM is that an “extra OS” on top of the host operating system adds gigabytes of space to the project. Most of the time your server will host several VMs that will take up even more space. And by the way, at the moment, most cloud-based server providers will charge you for that extra space. Another significant drawback of VM is a slow boot.
+![ML Docker](./imgs/structure.png)
 
-Docker eliminates all the above by simply sharing the OS kernel across all the containers running as separate processes of the host OS.
+### The input
+* /opt/ml/input/config contains information to control how your program runs. hyperparameters.json is a JSON-formatted dictionary of hyperparameter names to values. These values will always be strings, so you may need to convert them. resourceConfig.json is a JSON-formatted file that describes the network layout used for distributed training. Since scikit-learn doesn't support distributed training, we'll ignore it here.
+* /opt/ml/input/data/<channel_name>/ (for File mode) contains the input data for that channel. The channels are created based on the call to CreateTrainingJob but it's generally important that channels match what the algorithm expects. The files for each channel will be copied from S3 to this directory, preserving the tree structure indicated by the S3 key structure.
 
-![Docker containers vs Virtual machines](./images/containers-vms-together.png)
+### The output
+* /opt/ml/model/ is the directory where you write the model that your algorithm generates. Your model can be in any format that you want. It can be a single file or a whole directory tree. SageMaker will package any files in this directory into a compressed tar archive file. This file will be available at the S3 location returned in the DescribeTrainingJob result.
+* /opt/ml/output is a directory where the algorithm can write a file failure that describes why the job failed. The contents of this file will be returned in the FailureReason field of the DescribeTrainingJob result. For jobs that succeed, there is no reason to write this file as it will be ignored.
 
-Keep in mind that Docker is not the first and not the only containerization platform. However, at the moment Docker is the biggest and the most powerful player on the market.
+## Execution stack for container
 
-## Why do we need Docker?
+![Container Stack](./imgs/stack.png)
 
-The short list of benefits includes:
-
-* Faster development process
-* Handy application encapsulation
-* Same behaviour on local machine / dev / staging / production servers
-* Easy and clear monitoring
-* Easy to scale
+* /ping will receive GET requests from the infrastructure. Your program returns 200 if the container is up and accepting requests.
+* /invocations is the endpoint that receives client inference POST requests. The format of the request and the response is up to the algorithm. If the client supplied ContentType and Accept headers, these will be passed in as well.
 
 ### Faster development process
 
