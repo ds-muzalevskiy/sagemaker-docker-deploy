@@ -43,6 +43,27 @@ Docker uses a simple file called a Dockerfile to specify how the image is assemb
 * /ping will receive GET requests from the infrastructure. Your program returns 200 if the container is up and accepting requests.
 * /invocations is the endpoint that receives client inference POST requests. The format of the request and the response is up to the algorithm. If the client supplied ContentType and Accept headers, these will be passed in as well.
 
+
+## WSGI (Web Server Gateway Interface)
+
+WSGI has two parts:
+
+The server–often high-profile web servers such as Nginx or Apache
+The web app made from a python script
+The server executes the web app and sends related information and a callback function to the app. The request is processed on the app side, and a response is sent back to the server utilizing the callback function.
+
+Sometimes there might be one or more WSGI middlewares between the server and the web app. Middleware is used to direct requests to various app objects, load balancing, content preprocessing and running several frameworks or apps alongside each other in the same process. Examples of Python frameworks that support WSGI include Django, CherryPy, Flask, TurboGears, and web2py.
+
+<p align="center">
+  <img width="385" height="280" src=./imgs/server-app.png>
+</p>
+
+The main principle for using wsgi with flask app can be displayed on this pic:
+
+<p align="center">
+  <img width="385" height="280" src=./imgs/wsgi.png>
+</p>
+
 ## Main Components
 
 * Dockerfile: The Dockerfile describes how the image is built and what it contains. It is a recipe for your container and gives you tremendous flexibility to construct almost any execution environment you can imagine. Here. we use the Dockerfile to describe a pretty standard python science stack and the simple scripts that we're going to add to it. See the Dockerfile reference for what's possible here.
