@@ -23,28 +23,29 @@ channel_name='training'
 training_path = os.path.join(input_path, channel_name)
 
 
+
 def train():
     print('Starting the training.')
         
     input_files = [ os.path.join(training_path, file) for file in os.listdir(training_path) ]
     if len(input_files) == 0:
         raise ValueError(('error').format(training_path, channel_name))
-    raw_data = [ pd.read_csv(file, header=None) for file in input_files ]
+    raw_data = [ pd.read_csv(file, sep=';') for file in input_files ]
     train_data = pd.concat(raw_data)
 
-    train_y = train_data.ix[:,0]
-    train_X = train_data.ix[:,1:]
+    train_y = train_data.iloc[:,0]
+    train_X = train_data.iloc[:,1:]
 
     params = {'min_samples_split':[2,4], 'min_samples_leaf':[1,2,3]}
-
     clf = tree.DecisionTreeClassifier()
         
-    grid = GridSearchCV(estimator=clf, param_grid=params, cv=5)
+    grid = GridSearchCV(estimator=clf, param_grid=params, cv=3)
     grid = grid.fit(train_X, train_y)
 
     with open(os.path.join(model_path, 'decision-tree-model.pkl'), 'wb') as out:
         pickle.dump(grid, out)
         print('Training complete.')
+        
 
 if __name__ == '__main__':
     train()
