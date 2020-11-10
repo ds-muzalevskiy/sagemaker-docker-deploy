@@ -12,19 +12,22 @@
 
 ## Docker
 
-Docker provides a simple way to package arbitrary code into an image that is totally self-contained. Once you have an image, you can use Docker to run a container based on that image. Running a container is just like running a program on the machine except that the container creates a fully self-contained environment for the program to run. Containers are isolated from each other and from the host environment, so the way you set up your program is the way it runs, no matter where you run it.
+Functionality of Docker provides a simple way to package your code into an image that is totally self-contained. After the image has been established, Docker can run a container that this image is based on. The way you set up your program is the way it runs because the containers are separated from each other and the host.
 
-Docker is more powerful than environment managers like conda or virtualenv because (a) it is completely language independent and (b) it comprises your whole operating environment, including startup commands, environment variable, etc.
+Comparing to envs like virtualenv (or conda), Docker is completely language independent and (b) it can create the whole operating environment, including startup commands, environment variable, etc. In some ways, a Docker container is like a virtual machine, but it is much lighter weight. 
 
-In some ways, a Docker container is like a virtual machine, but it is much lighter weight. For example, a program running in a container can start in less than a second and many containers can run on the same physical machine or virtual machine instance.
 
-Docker uses a simple file called a Dockerfile to specify how the image is assembled. We'll see an example of that below. You can build your Docker images based on Docker images built by yourself or others, which can simplify things quite a bit.
+<p align="center">
+  <img width="512" height="254" src=./imgs/docker.png>
+</p>
 
-![Docker Work](./imgs/docker.png)
 
 ## ML Docker Structure for Sagemaker
 
-![ML Docker](./imgs/structure.png)
+<p align="center">
+  <img width="306" height="260" src=./imgs/structure.png>
+</p>
+
 
 ### input
 * /opt/ml/input/config contains information to control how your program runs. hyperparameters.json is a JSON-formatted dictionary of hyperparameter names to values. These values will always be strings, so you may need to convert them. resourceConfig.json is a JSON-formatted file that describes the network layout used for distributed training. Since scikit-learn doesn't support distributed training, we'll ignore it here.
@@ -40,19 +43,20 @@ Docker uses a simple file called a Dockerfile to specify how the image is assemb
   <img width="385" height="280" src=./imgs/stack.png>
 </p>
 
-* /ping will receive GET requests from the infrastructure. Your program returns 200 if the container is up and accepting requests.
-* /invocations is the endpoint that receives client inference POST requests. The format of the request and the response is up to the algorithm. If the client supplied ContentType and Accept headers, these will be passed in as well.
+* /ping is simple health сheck endpoint that receives GET requests. If the model returns 200 (Success), then the container is up and running and ready to receive requests.
+* /invocations is the endpoint that receives client inference POST requests. The format of the request and the response is up to the algorithm. 
 
 
 ## WSGI (Web Server Gateway Interface)
 
-WSGI has two parts:
+WSGI consists of two parts:
 
-The server–often high-profile web servers such as Nginx or Apache
-The web app made from a python script
-The server executes the web app and sends related information and a callback function to the app. The request is processed on the app side, and a response is sent back to the server utilizing the callback function.
+* Server part – usually web servers such as Nginx or Apache are being used
+* App part – web application model created from python scripts. In case of ML models, usually there are REST-API services wrapped in a lightweight web modules such as Flask or Tornado.
 
-Sometimes there might be one or more WSGI middlewares between the server and the web app. Middleware is used to direct requests to various app objects, load balancing, content preprocessing and running several frameworks or apps alongside each other in the same process. Examples of Python frameworks that support WSGI include Django, CherryPy, Flask, TurboGears, and web2py.
+The server executes the web app and sends information and a callback function to the app. The request is processed on the app side, and a response is sent back to the server utilizing the callback function.
+
+Examples of Python frameworks that support WSGI include Django, CherryPy, Flask, TurboGears, and web2py.
 
 <p align="center">
   <img width="1444" height="280" src=./imgs/server-app.png>
@@ -66,17 +70,17 @@ The main principle for using wsgi with flask app can be displayed on this pic:
 
 ## Main Components
 
-* Dockerfile: The Dockerfile describes how the image is built and what it contains. It is a recipe for your container and gives you tremendous flexibility to construct almost any execution environment you can imagine. Here. we use the Dockerfile to describe a pretty standard python science stack and the simple scripts that we're going to add to it. See the Dockerfile reference for what's possible here.
+* Dockerfile: Document file that contains all the commands that are used when you produce an image using 'docker build'
 
-* docker_to_ecr.sh: The script to build the Docker image (using the Dockerfile above) and push it to the Amazon EC2 Container Registry (ECR) so that it can be deployed to SageMaker. Specify the name of the image as the argument to this script. The script will generate a full name for the repository in your account and your configured AWS region. If this ECR repository doesn't exist, the script will create it.
+* docker_to_ecr.sh: Shell script that builds Docker Image using Dockerfile and push that image directly to AWS ECR (Elastic Container Registry). After this procedure, this image can be used in Sagemaker for fitting the Estimator and deploying the model. Need to have preinstalled AWS CLI (Command Line Interface) and configured information using 'aws configure' command.
 
-* sagemaker-estimator: The directory that contains the application to run in the container. See the next session for details about each of the files.
+* sagemaker-estimator: The main working directory for ML model that you're building
 
 ## Container Application
 
-* train: The main program for training the model. When you build your own algorithm, you'll edit this to include your training code.
-* serve: The wrapper that starts the inference server. In most cases, you can use this file as-is.
-* wsgi.py: The start up shell for the individual server workers. This only needs to be changed if you changed where predictor.py is located or is named.
-* predictor.py: The algorithm-specific inference server. This is the file that you modify with your own algorithm's code.
-* nginx.conf: The configuration for the nginx master server that manages the multiple workers.
+* train: The main script that is using for training your ML models. Can also be combined with additional scripts for preprocessing, feature selection, etc.
+* serve: The wrapper that is working with inference server and starts it. Usually this file stays as it is and can be used in different ml models.
+* wsgi.py: Creating the start of individual workers.
+* predictor.py: Model prediction script combined with flask wrapper 
+* nginx.conf: Conf settings for nginx master (enabling working with multiple workers)
 
