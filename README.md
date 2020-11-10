@@ -4,7 +4,7 @@
 ## Table of contents
 
 * [Docker](#Docker)
-* [ML Docker Structure for Sagemaker](#ML Docker Structure for Sagemaker)
+* [ML_Docker](#ML Docker Structure for Sagemaker)
 * [Execution Stack for Container](#Execution Stack for Container)
 * [WSGI (Web Server Gateway Interface)](#WSGI (Web Server Gateway Interface))
 * [Main Components](# Main Components)
