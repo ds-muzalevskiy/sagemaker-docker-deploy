@@ -40,7 +40,7 @@ Comparing to envs like virtualenv (or conda), Docker is completely language inde
 ## Execution Stack for Container
 
 <p align="center">
-  <img width="385" height="280" src=./imgs/stack.png>
+  <img width="1222" height="481" src=./imgs/wsgi.png>
 </p>
 
 * /ping is simple health сheck endpoint that receives GET requests. If the model returns 200 (Success), then the container is up and running and ready to receive requests.
@@ -60,12 +60,6 @@ Examples of Python frameworks that support WSGI include Django, CherryPy, Flask,
 
 <p align="center">
   <img width="1444" height="280" src=./imgs/server-app.png>
-</p>
-
-The main principle for using wsgi with flask app can be displayed on this pic:
-
-<p align="center">
-  <img width="1222" height="481" src=./imgs/wsgi.png>
 </p>
 
 ## Main Components
