@@ -14,7 +14,7 @@
 
 Functionality of Docker provides a simple way to package your code into an image that is totally self-contained. After the image has been established, Docker can run a container that this image is based on. The way you set up your program is the way it runs because the containers are separated from each other and the host.
 
-Comparing to envs like virtualenv (or conda), Docker is completely language independent and (b) it can create the whole operating environment, including startup commands, environment variable, etc. In some ways, a Docker container is like a virtual machine, but it is much lighter weight. 
+Comparing to envs like virtualenv (or conda), Docker is completely language independent and it can create the whole operating environment, including startup commands, environment variable, etc. In some ways, a Docker container is like a virtual machine, but it is much lighter weight. 
 
 
 <p align="center">
