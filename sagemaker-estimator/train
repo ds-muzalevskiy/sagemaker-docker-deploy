@@ -38,28 +38,14 @@ def train():
 
     train_y = train_data.iloc[:,0]
     train_X = train_data.iloc[:,1:]
-
-    #params = {'min_samples_split':[2,4], 'min_samples_leaf':[1,2,3]}
-    #clf = tree.DecisionTreeClassifier()
-        
-    #grid = GridSearchCV(estimator=clf, param_grid=params, cv=3)
-    #grid = grid.fit(train_X, train_y)
     
     clf = VotingClassifier(estimators=[ 
     ('svm', SVC(probability=True)), 
     ('lr', LogisticRegression()), 
     ('rf', RandomForestClassifier())], voting='soft')
     
-    params = {'lr__C': [1.0, 2.0, 5.0],
-              'svm__C': [2,3,4],
-              'rf__min_samples_leaf': [1, 2, 4],
-              'rf__min_samples_split': [2,5,10],
-              'rf__n_estimators': [10, 20, 50, 100]}
-
-    grid = GridSearchCV(estimator=clf, param_grid=params, cv=3)
-
-    grid.fit(train_X, train_y)
-
+    grid = clf.fit(train_X, train_y)
+    
     with open(os.path.join(model_path, 'ml-model.pkl'), 'wb') as out:
         pickle.dump(grid, out)
         print('Training complete.')
