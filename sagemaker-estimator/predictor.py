@@ -22,7 +22,7 @@ class ScoringService(object):
     @classmethod
     def get_model(cls):
         if cls.model == None:
-            with open(os.path.join(model_path, 'decision-tree-model.pkl'), 'rb') as inp:
+            with open(os.path.join(model_path, 'ml-model.pkl'), 'rb') as inp:
                 cls.model = pickle.load(inp)
         return cls.model
 
