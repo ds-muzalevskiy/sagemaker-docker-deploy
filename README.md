@@ -10,6 +10,8 @@
 * [Main Components](#Main-Components)
 * [Container Application](#Container-Application)
 
+Dataset can be found here: https://www.kaggle.com/andrewmvd/heart-failure-clinical-data
+
 ## Docker
 
 Functionality of Docker provides a simple way to package your code into an image that is totally self-contained. After the image has been established, Docker can run a container that this image is based on. The way you set up your program is the way it runs because the containers are separated from each other and the host.
