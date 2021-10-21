@@ -10,13 +10,10 @@ import traceback
 
 import pandas as pd
 
-#from sklearn import tree
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.ensemble import VotingClassifier
 from sklearn.ensemble import RandomForestClassifier
-
-from sklearn.model_selection import GridSearchCV
 
 prefix = '/opt/ml/'
 
@@ -33,8 +30,11 @@ def train():
     input_files = [ os.path.join(training_path, file) for file in os.listdir(training_path) ]
     if len(input_files) == 0:
         raise ValueError(('error').format(training_path, channel_name))
-    raw_data = [ pd.read_csv(file, sep=';') for file in input_files ]
+    raw_data = [ pd.read_csv(file, sep=',') for file in input_files ]
     train_data = pd.concat(raw_data)
+    
+    first_column = train_data.pop(target_variable)
+    train_data.insert(0, target_variable, first_column)
 
     train_y = train_data.iloc[:,0]
     train_X = train_data.iloc[:,1:]
