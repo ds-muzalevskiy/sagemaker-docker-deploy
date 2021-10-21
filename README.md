@@ -12,6 +12,16 @@
 
 Dataset can be found here: https://www.kaggle.com/andrewmvd/heart-failure-clinical-data
 
+It's very important to be sure that the target column stays in the dataset on the first position (first column). The main reason for that is that Sagemaker Estimator model accepts dataset in the following format: {Y, X1, X2, ..., Xn}, where Y-target variable and X1,...Xn-features. This can be done differently, in the current example .pop() approach is being used(can be found in train file):
+
+```
+first_column = train_data.pop(target_variable)
+train_data.insert(0, target_variable, first_column)
+```
+To use it for your own dataset, you can just change **target_variable**
+
+Also notice that you may need to change the separator in pd.read_csv() based on your exact dataset.
+
 ## Docker
 
 Functionality of Docker provides a simple way to package your code into an image that is totally self-contained. After the image has been established, Docker can run a container that this image is based on. The way you set up your program is the way it runs because the containers are separated from each other and the host.
